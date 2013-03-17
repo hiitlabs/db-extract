@@ -33,7 +33,7 @@ class Message:
     return CVS_SEPARATOR.join( l )
 
 ## all the messages per block
-blocks = {}
+__blocks = {}
 
 ## method for pringint one message in chat
 def _print( msg ):
@@ -42,17 +42,17 @@ def _print( msg ):
 
 ## detect al blocks
 def _block( line ):
-   global blocks
+   global __blocks
    if not 'key' in line:
        return
    if line['key'].startswith( 'msgs:' ):
-       blocks[ line['key'] ] = line['val']
+       __blocks[ line['key'] ] = line['val']
 
 def _per_block():
-  global blocks
-  for block in blocks:
+  global __blocks
+  for block in __blocks:
     print block
-    map( _print , blocks[block] )
+    map( _print , __blocks[block] )
     print '--'
 
 
