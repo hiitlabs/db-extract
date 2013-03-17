@@ -8,24 +8,37 @@ import collections
 from datetime import datetime
 from datetime import timedelta
 
+CVS_SEPARATOR = '|'
+
+class Message:
+
+  def __init__(self, json = None):
+    if json:
+      self.fill( json )
+
+  def parse( self, line):
+    self.fill( json.loads( line ) )
+
+  def fill(self, msg ):
+    self.id = msg['id']
+    self.time = datetime.strptime( msg['time'] , '%Y-%m-%dT%H:%M:%S.%fZ') + timedelta( hours = 2 ) ## for Finland
+    self.text = msg['message'].encode('utf-8').strip()
+    self.author = msg['from'].encode('utf-8').strip()
+
+  def __str__(self):
+    time_unix = self.time.strftime("%s")
+    time_human = self.time.strftime('%H:%M')
+    l = [ time_unix, time_human, self.text, self.author, self.id ]
+    l = map( lambda x : str( x ) , l )
+    return CVS_SEPARATOR.join( l )
+
 ## all the messages per block
 blocks = {}
 
 ## method for pringint one message in chat
 def _print( msg ):
-  id = msg['id'];
-
-  t = datetime.strptime( msg['time'] , '%Y-%m-%dT%H:%M:%S.%fZ') + timedelta( hours = 2 ) ## for Finland
-  time_unix = t.strftime("%s")
-  time_human = t.strftime('%H:%M')
-
-  text = msg['message'].encode('utf-8').strip()
-  author = msg['from'].encode('utf-8').strip()
-
-  ## print data
-  d = [ time_unix, time_human, text, author, id ]
-  d = map( lambda x : str( x ) , d )
-  print '|'.join( d )
+  msg = Message( msg )
+  print str(msg)
 
 ## detect al blocks
 def _block( line ):
