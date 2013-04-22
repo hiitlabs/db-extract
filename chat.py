@@ -34,10 +34,11 @@ class Message:
 
 ## all the messages per block
 __blocks = {}
+__MESSAGE_CLASS = Message
 
 ## method for pringint one message in chat
 def _print( msg ):
-  msg = Message( msg )
+  msg = __MESSAGE_CLASS( msg )
   print str(msg)
 
 ## detect al blocks
