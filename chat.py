@@ -22,7 +22,7 @@ class Message:
   def fill(self, msg ):
     self.id = msg['id']
     self.time = datetime.strptime( msg['time'] , '%Y-%m-%dT%H:%M:%S.%fZ') + timedelta( hours = 2 ) ## for Finland
-    self.text = msg['message'].encode('utf-8').strip()
+    self.text = msg['text'].encode('utf-8').strip()
     self.author = msg['from'].encode('utf-8').strip()
 
   def __str__(self):
