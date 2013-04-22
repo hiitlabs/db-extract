@@ -60,7 +60,7 @@ def get_messages():
   global __blocks
   messages = []
   for block in __blocks:
-    map( lambda x : messages.append( x ), __blocks[ block ] )
+    map( lambda x : messages.append( __MESSAGE_CLASS( x ) ), __blocks[ block ] )
   return messages
 
 def analyze_chat( f ):
