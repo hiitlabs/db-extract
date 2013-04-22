@@ -8,9 +8,9 @@ import collections
 from datetime import datetime
 from datetime import timedelta
 
-CVS_SEPARATOR = '|'
-
 class Message:
+
+  CVS_SEPARATOR = '|'
 
   def __init__(self, json = None):
     if json:
@@ -30,7 +30,7 @@ class Message:
     time_human = self.time.strftime('%H:%M')
     l = [ time_unix, time_human, self.text, self.author, self.id ]
     l = map( lambda x : str( x ) , l )
-    return CVS_SEPARATOR.join( l )
+    return self.CVS_SEPARATOR.join( l )
 
 ## all the messages per block
 __blocks = {}
