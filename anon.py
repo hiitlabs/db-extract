@@ -32,3 +32,6 @@ def analyze( db ):
 
 analyze('../dev1.db')
 analyze('../dev2.db')
+
+for key, value in _authors.items()
+	print key
