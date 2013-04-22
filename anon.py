@@ -8,10 +8,11 @@ class Message( chat.Message ):
 	
   def fill(self, msg ):
   	chat.Message.fill( self, msg )
-  	self.kissa = 'kissa1'
+  	self.experiment = msg['_experiment']
 
   def __str__(self):
-  	return self.kissa
+  	s = chat.Message.__str__( self )
+  	return s + self.CVS_SEPARATOR +  str(self.experiment)
 
 chat.__MESSAGE_CLASS = Message
 chat.analyze_chat('../dev1.db')
