@@ -48,7 +48,7 @@ def _block( line ):
    if line['key'].startswith( 'msgs:' ):
        __blocks[ line['key'] ] = line['val']
 
-def _per_block():
+def print():
   global __blocks
   for block in __blocks:
     print block
@@ -60,7 +60,7 @@ def analyze_chat( f ):
   f = open( f, 'r')
   for line in f:
     _block( json.loads( line ) )
-  _per_block();
+  print();
 
 if __name__ == '__main__':
   analyze_chat( sys.argv[1] )
