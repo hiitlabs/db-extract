@@ -18,6 +18,7 @@ class Message( chat.Message ):
 
 chat.__MESSAGE_CLASS = Message
 _authors = {}
+_per_chat = {}
 
 def analyze( db ):
 	global _authors
@@ -29,9 +30,19 @@ def analyze( db ):
 		if u not in _authors:
 			_authors[ u ] = 0
 		_authors[ u ] += 1
+		c = ( db, m.experiment )
+		if c not in _per_chat:
+			_per_chat[ c ] = 0.0
+		_per_chat[ c ] += 1
 
 analyze('../dev1.db')
 analyze('../dev2.db')
 
-for key, value in _authors.items()
-	print key
+for key, value in _authors.items():
+	## hash users
+	h = str( hash( key[0] + key[1] ) )
+	## experimental value here :)
+	state = '1' if key[2] else '0'
+	## get the % of messages this user contributed
+	value = str( value / _per_chat[ ( key[0], key[2]) ] )
+	print h + ':'  + state + ':' + value
