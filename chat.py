@@ -55,12 +55,18 @@ def all_print():
     map( _print , __blocks[block] )
     print '--'
 
+def get_messages():
+  global __blocks
+  messages = []
+  for block in __blocks:
+    map( lambda x : messages.append( x ), __blocks[ block ] )
+  return messages
 
 def analyze_chat( f ):
   f = open( f, 'r')
   for line in f:
     _block( json.loads( line ) )
-  all_print();
 
 if __name__ == '__main__':
   analyze_chat( sys.argv[1] )
+  all_print()
