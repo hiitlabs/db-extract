@@ -43,6 +43,8 @@ if __name__ == '__main__':
 
     users = User.load_users( sys.argv[1] )
 
-    for u in users:
-        if users[ u ].name != '':
-            print users[ u ].name
+    print 'Total number of users', len( users.values() )
+
+    for u in users.values():
+        if u.name != '':
+            print u.name
