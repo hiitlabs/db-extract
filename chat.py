@@ -33,7 +33,7 @@ class Message:
         self.author = msg['meta']['userId']
 
     @staticmethod
-    def load_messages( file_name ):
+    def load( file_name ):
         messages = {}
 
         for line in open( file_name ):
@@ -44,13 +44,12 @@ class Message:
 
         return messages
 
-
 ## all the messages per block
 __MESSAGE_CLASS = Message
 
 if __name__ == '__main__':
 
-    msgs = Message.load_messages( sys.argv[1] )
+    msgs = Message.load( sys.argv[1] )
 
     print 'Total number of messages', len( msgs.values() )
 

@@ -27,7 +27,7 @@ class User:
         self.name = user['username'].encode('utf8')
 
     @staticmethod
-    def load_users( file_name ):
+    def load( file_name ):
         users = {}
 
         for line in open( file_name ):
@@ -41,7 +41,7 @@ class User:
 
 if __name__ == '__main__':
 
-    users = User.load_users( sys.argv[1] )
+    users = User.load( sys.argv[1] )
 
     print 'Total number of users', len( users.values() )
 
