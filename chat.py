@@ -44,6 +44,19 @@ class Message:
 
         return messages
 
+    @staticmethod
+    def load_per_block( file_name, ids):
+
+        messages = {}
+
+        for line in open( file_name ):
+            if re.search( Message.HEADER, line):
+                m = Message( line )
+                if m.id in ids:
+                    messages[ m.id ] = m
+
+        return messages
+
 ## all the messages per block
 __MESSAGE_CLASS = Message
 
