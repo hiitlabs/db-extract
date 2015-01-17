@@ -9,7 +9,7 @@ class _Block:
         self.type = _type
         self.id = _id
 
-        print self.type
+        self.data = None
 
         ## collect extra data
         dbkey = self.type + ':' + self.id
@@ -19,7 +19,7 @@ class _Block:
 
         if len( parent.__search_key( dbkey ) ) > 0:
 
-            print parent.__search_key( dbkey )[-1]
+            self.data = parent.__search_key( dbkey )[-1]
 
 
 
