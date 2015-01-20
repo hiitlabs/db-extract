@@ -27,7 +27,7 @@ class Message:
         msg = msg['val']
         self.id = msg['id']
 
-        self.time = None ## TODO: fixme
+        self.time = msg['tc']
 
         self.text = None
         if isinstance( msg['text'], str) or isinstance( msg['text'], unicode):
@@ -35,7 +35,7 @@ class Message:
         self.author = msg['meta']['userId']
 
     def __str__(self):
-        return self.time + ' + ' +self.text
+        return self.text
 
     @staticmethod
     def load( file_name ):
