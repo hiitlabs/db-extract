@@ -35,7 +35,7 @@ class Message:
         self.author = msg['meta']['userId']
 
     def __str__(self):
-        return self.text
+        return self.time + ' + ' +self.text
 
     @staticmethod
     def load( file_name ):
@@ -52,13 +52,15 @@ class Message:
     @staticmethod
     def load_per_block( file_name, ids):
 
-        messages = {}
+        messages = []
 
         for line in open( file_name ):
             if re.search( Message.HEADER, line):
                 m = Message( line )
                 if m.id in ids:
-                    messages[ m.id ] = m
+                    messages.append( m )
+
+        messages = sorted( messages , key= lambda msg: msg.time )
 
         return messages
 

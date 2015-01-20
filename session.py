@@ -21,6 +21,9 @@ class _Block:
 
             self.data = parent.__search_key( dbkey )[-1]
 
+            if 'heading' in self.data:
+                print self.id , ',', self.data['heading'].encode('utf-8')
+
 
 
 class Block:
@@ -70,12 +73,14 @@ class Block:
 
         for block in self.blocks:
             if block['type'] == type_name:
-                print block
+
+                b = _Block( block['id'], block['type'], self )
+
                 ## all content of this block
-                ## print map( str, class_name.load_per_block( self.f, self.content[ block['id'] ] ).values() )
+                print map( str, class_name.load_per_block( self.f, self.content[ block['id'] ] ) )
 
 
 if __name__ == '__main__':
     b = Block( sys.argv[1] )
     b.get_blocks( 'chat' , Message )
-    b.get_blocks( 'scatter', Message )
+    ## b.get_blocks( 'scatter', Message )
