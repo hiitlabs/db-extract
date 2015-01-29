@@ -8,13 +8,14 @@ class _Block:
     def __init__( self, _id, _type, parent ):
         self.type = _type
         self.id = _id
+        self.title = 'missing'
 
         self.data = None
 
         ## collect extra data
         dbkey = self.type + ':' + self.id
 
-        if self.type == 'chat':
+        if self.type == 'chat' or self.type == 'rating':
             dbkey += 'frontends'
 
         if len( parent.__search_key( dbkey ) ) > 0:
@@ -22,7 +23,12 @@ class _Block:
             self.data = parent.__search_key( dbkey )[-1]
 
             if 'heading' in self.data:
-                print self.id , ',', self.data['heading'].encode('utf-8')
+                self.title = self.data['heading'].encode('utf-8')
+
+            if 'frontends' in self.data:
+                self.title = self.data['frontends']['heading'].encode('utf-8')
+
+            print self.id  , ',' ,  self.type ,  ','  , self.title
 
 
 
@@ -55,7 +61,8 @@ class Block:
         for b in blocks[-1]:
             if b['id'] not in self.blocks:
                 self.blocks[ b['id'] ] = b
-                _Block( b['id'], b['type'], self )
+                print b['type']
+                print _Block( b['id'], b['type'], self )
 
         self.blocks = self.blocks.values()
 
@@ -74,13 +81,16 @@ class Block:
         for block in self.blocks:
             if block['type'] == type_name:
 
+                print '\n\n\n'
+
+
                 b = _Block( block['id'], block['type'], self )
 
                 ## all content of this block
-                print map( str, class_name.load_per_block( self.f, self.content[ block['id'] ] ) )
+                print '\n'.join( map( lambda x: ' - ' + str(x), class_name.load_per_block( self.f, self.content[ block['id'] ] ) ) )
 
 
 if __name__ == '__main__':
     b = Block( sys.argv[1] )
-    b.get_blocks( 'chat' , Message )
+    ## b.get_blocks( 'chat' , Message )
     ## b.get_blocks( 'scatter', Message )
