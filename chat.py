@@ -24,7 +24,18 @@ class Message:
 
     def fill(self, msg ):
         self._json = msg
+
         msg = msg['val']
+
+        ## dummy control for mistakes in rating system code
+        if not isinstance( msg , dict ):
+            self.id = None
+            return
+
+        if not 'id' in msg:
+            self.id = None
+            return
+
         self.id = msg['id']
 
         self.time = msg['tc']
@@ -36,6 +47,9 @@ class Message:
 
     def __str__(self):
         return self.text + ' (' + self.author + ',' + str( self.time ) + ')'
+
+    def __hash__( self ):
+        return hash( self.id )
 
     @staticmethod
     def load( file_name ):
@@ -60,6 +74,7 @@ class Message:
                 if m.id in ids:
                     messages.append( m )
 
+        messages = list( set( messages ) )
         messages = sorted( messages , key= lambda msg: msg.time )
 
         return messages
