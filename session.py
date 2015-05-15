@@ -115,6 +115,10 @@ class Block:
                 key = 'chat:' + block['id'] + 'msgIds'
                 self.content[ block['id'] ] = set( self.__search_key( key )[-1] )
 
+            if block['type'] == 'rating':
+                key = 'rating:' + block['id'] + 'msgIds'
+                self.content[ block['id'] ] = set( self.__search_key( key )[-1] )
+
     def get_blocks( self, type_name, class_name ):
 
         data = []
@@ -127,6 +131,7 @@ class Block:
 
                 ## all content of this block
                 content =  class_name.load_per_block( self.f, self.content[ block['id'] ]  )
+
                 data.append( {  'id' : block['id'],  'content': content } )
 
         return data
