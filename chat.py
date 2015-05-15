@@ -35,7 +35,7 @@ class Message:
         self.author = msg['meta']['userId']
 
     def __str__(self):
-        return self.text
+        return self.text + ' (' + self.author + ',' + str( self.time ) + ')'
 
     @staticmethod
     def load( file_name ):
@@ -74,4 +74,4 @@ if __name__ == '__main__':
     print 'Total number of messages', len( msgs.values() )
 
     for m in msgs.values():
-        print m.text
+        print m.time,",",m.author,",",m.text
