@@ -8,6 +8,9 @@ class _Block:
     def __init__( self, _id, _type, parent ):
         self.type = _type
         self.id = _id
+
+        self.__parent = parent
+
         self.title = 'missing'
 
         self.data = None
@@ -15,7 +18,7 @@ class _Block:
         ## collect extra data
         dbkey = self.type + ':' + self.id
 
-        if self.type == 'chat' or self.type == 'rating':
+        if self.type == 'chat' or self.type == 'rating' or self.type == 'thread':
             dbkey += 'frontends'
 
         if len( parent.__search_key( dbkey ) ) > 0:
@@ -28,7 +31,41 @@ class _Block:
             if 'frontends' in self.data:
                 self.title = self.data['frontends']['heading'].encode('utf-8')
 
-            print self.id  , ',' ,  self.type ,  ','  , self.title
+
+    def __str__( self ):
+        return self.id  + ',' +  self.type +  ','  + self.title  + ',' + ','.join( map( str , self.activity() ) )
+
+    def activity(self):
+
+        messages = 0
+        votes = 0
+        participants = -1
+
+        dbkey = self.type + ':' + self.id
+
+        if self.__parent.__search_key( dbkey + 'participantCount' ):
+
+            participants = max( self.__parent.__search_key( dbkey + 'participantCount' ) )
+
+        if self.type == 'chat' or self.type == 'rating' or self.type == 'thread':
+
+            messages = self.__parent.__search_key( dbkey + 'msgIds' )[-1]
+            messages = len( messages )
+
+        if self.type == 'rating':
+
+            temp = self.__parent.__search_key( dbkey )[-1]
+
+            if temp:
+                votes = sum( votes['votes'].values() )
+
+        if self.type == 'poll':
+
+            votes = self.__parent.__search_key( dbkey  )[-1]
+            votes = len( votes['participants'] )
+
+        return participants, messages, votes
+
 
 
 
@@ -43,6 +80,9 @@ class Block:
 
             if line['key'] == key:
                 ret.append( line['val'] )
+
+            if 'ratings:' in line['key']:
+                print line['val']
 
         return ret
 
@@ -61,8 +101,7 @@ class Block:
         for b in blocks[-1]:
             if b['id'] not in self.blocks:
                 self.blocks[ b['id'] ] = b
-                print b['type']
-                print _Block( b['id'], b['type'], self )
+                _Block( b['id'], b['type'], self )
 
         self.blocks = self.blocks.values()
 
@@ -78,16 +117,19 @@ class Block:
 
     def get_blocks( self, type_name, class_name ):
 
+        data = []
+
         for block in self.blocks:
             if block['type'] == type_name:
 
-                print '\n\n\n'
-
-
+                ## TODO: move ocntent selection to block as a method
                 b = _Block( block['id'], block['type'], self )
 
                 ## all content of this block
-                print '\n'.join( map( lambda x: ' - ' + str(x), class_name.load_per_block( self.f, self.content[ block['id'] ] ) ) )
+                content =  class_name.load_per_block( self.f, self.content[ block['id'] ]  )
+                data.append( {  'id' : block['id'],  'content': content } )
+
+        return data
 
 
 if __name__ == '__main__':
