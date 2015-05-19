@@ -43,7 +43,9 @@ class Message:
         self.text = None
         if isinstance( msg['text'], str) or isinstance( msg['text'], unicode):
             self.text = msg['text'].encode('utf-8').strip()
-        self.author = msg['meta']['userId']
+
+        if 'userId' in  msg['meta']:
+            self.author = msg['meta']['userId']
 
     def __str__(self):
         return self.text + ' (' + self.author + ',' + str( self.time ) + ')'
