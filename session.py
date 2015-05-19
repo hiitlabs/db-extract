@@ -107,7 +107,6 @@ class Block:
 
         self.content = {}
 
-
         ## check hot to make this smarter
         for block in self.blocks:
 
@@ -118,6 +117,10 @@ class Block:
             if block['type'] == 'rating':
                 key = 'rating:' + block['id'] + 'msgIds'
                 self.content[ block['id'] ] = set( self.__search_key( key )[-1] )
+
+            if block['type'] == 'poll':
+                key = 'poll:' + block['id']
+                self.content[ block['id'] ] = self.__search_key( key )
 
     def get_blocks( self, type_name, class_name ):
 
@@ -130,7 +133,10 @@ class Block:
                 b = _Block( block['id'], block['type'], self )
 
                 ## all content of this block
-                content =  class_name.load_per_block( self.f, self.content[ block['id'] ]  )
+                if block['type'] == 'poll':
+                    content =  class_name.load_per_block( self.f, [ block['id'] ]  )
+                else:
+                    content = class_name.load_per_block( self.f, self.content[ block['id'] ]  )
 
                 data.append( {  'id' : block['id'],  'content': content } )
 
