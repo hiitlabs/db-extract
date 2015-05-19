@@ -1,9 +1,11 @@
 from session import *
 from chat import *
+from poll import *
 import sys
 
 
 b = Block( sys.argv[1] )
+
 
 for block in b.get_blocks( 'chat' , Message ):
 
@@ -27,3 +29,9 @@ for block in b.get_blocks( 'rating' , Message ):
             print 'vote', block['id'] , ',', content.time , ',' , content.id
 
             shown_ids.append( content.id )
+
+for block in b.get_blocks( 'poll' , Poll ):
+
+    for content in block['content']:
+
+        print 'poll', block['id'],  ',', content.time
