@@ -12,6 +12,7 @@ from datetime import timedelta
 
 xxx_log = None
 xxx_session = None
+import sys
 
 def xxx_init_time_estimate( file_name ):
 
@@ -19,10 +20,19 @@ def xxx_init_time_estimate( file_name ):
     global xxx_session
 
     xxx_log = open( file_name ).readlines()
-    xxx_log = map( lambda x: json.loads( x ), xxx_log )
 
-    xxx_session = open('/Users/mnelimar/Desktop/presemo/presemo2/db/sessions.dirty')
-    xxx_session = map( lambda x: json.loads( x ) , xxx_session )
+    def debug( x ):
+        try:
+            return json.loads( x )
+        except ValueError:
+            return None
+
+    xxx_log = map( debug, xxx_log )
+
+    xxx_session = open( sys.argv[1] + '/sessions.dirty' )
+    xxx_session = map( debug , xxx_session )
+
+    xxx_session = filter( lambda x: x != None, xxx_session )
 
     temp = xxx_session
 

@@ -4,7 +4,7 @@ from poll import *
 import sys
 
 
-b = Block( sys.argv[1] )
+b = Block( sys.argv[1] + '/objects.dirty' )
 
 
 for block in b.get_blocks( 'chat' , Message ):
