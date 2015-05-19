@@ -9,6 +9,76 @@ import collections
 from datetime import datetime
 from datetime import timedelta
 
+## poll blocks don't have a tc, thus a hack
+
+xxx_log = None
+xxx_session = None
+
+def xxx_init_time_estimate( file_name ):
+
+    global xxx_log
+    global xxx_session
+
+    xxx_log = open( file_name ).readlines()
+    xxx_log = map( lambda x: json.loads( x ), xxx_log )
+
+    xxx_session = open('/Users/mnelimar/Desktop/presemo/presemo2/db/sessions.dirty')
+    xxx_session = map( lambda x: json.loads( x ) , xxx_session )
+
+    temp = xxx_session
+
+    xxx_session = {}
+
+    for t in temp:
+
+        if 'userId' in t['val']:
+            if t['val']['userId'] not in xxx_session:
+                xxx_session[ t['val']['userId'] ] = t
+
+def xxx_estimate_time( poll ):
+
+    global xxx_log
+    global xxx_sessio
+
+    current = xxx_log.index( poll._json )
+
+    back_closest_with_tc = 0
+    future_closest_with_tc = len( xxx_log )
+
+    ## go back
+    for i in range( current, 0, -1 ):
+
+        if 'UserConstructor' in xxx_log[i]['key']:
+
+            back_closest_with_tc = i
+            break
+
+    ## go future
+    for i in range( current, len( xxx_log ) ):
+
+            if 'UserConstructor' in xxx_log[i]['key']:
+
+                future_closest_with_tc = i
+                break
+
+    closest_with_tc = back_closest_with_tc
+    if abs( back_closest_with_tc - current ) > abs( future_closest_with_tc ):
+        closest_with_tc = future_closest_with_tc
+
+
+    key = xxx_log[i]['key'][16:]
+
+    if key in xxx_session:
+        date = xxx_session[ key ]['val']['cookie']['expires']
+        delta = xxx_session[ key ]['val']['cookie']['originalMaxAge']
+                                        ## 2015-04-28T11:09:43.277Z
+        date = datetime.strptime( date , '%Y-%m-%dT%H:%M:%S.%fZ')
+        date -= timedelta( milliseconds = delta )
+
+        return date.strftime( '%f' )
+
+    return None
+
 class Poll:
 
     HEADER = 'poll:(.*)' ## not super, but good enought?
@@ -38,7 +108,7 @@ class Poll:
 
         self.id = info['id']
 
-        self.time = None ## msg['tc']
+        self.time = xxx_estimate_time( self ) ## None ## msg['tc']
 
         self.text = info['frontends']['heading']
 
@@ -50,8 +120,13 @@ class Poll:
     def __hash__( self ):
         return hash( self.id )
 
+
+
     @staticmethod
     def load( file_name ):
+
+        xxx_init_time_estimate( file_name )
+
         messages = {}
 
         for line in open( file_name ):
@@ -65,6 +140,8 @@ class Poll:
     @staticmethod
     def load_per_block( file_name, ids):
 
+        xxx_init_time_estimate( file_name )
+
         messages = []
 
         for line in open( file_name ):
@@ -74,6 +151,8 @@ class Poll:
                     messages.append( m )
 
         messages = list( set( messages ) )
+        messages = filter( lambda x: x.time != None, messages )
+
         messages = sorted( messages , key= lambda msg: msg.time )
 
         return messages
