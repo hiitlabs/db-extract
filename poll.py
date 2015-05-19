@@ -8,7 +8,6 @@ import collections
 
 from datetime import datetime
 from datetime import timedelta
-
 ## poll blocks don't have a tc, thus a hack
 
 xxx_log = None
@@ -75,7 +74,9 @@ def xxx_estimate_time( poll ):
         date = datetime.strptime( date , '%Y-%m-%dT%H:%M:%S.%fZ')
         date -= timedelta( milliseconds = delta )
 
-        return date.strftime( '%f' )
+        date = date - datetime.utcfromtimestamp(0)
+
+        return '%i' %  ( date.total_seconds() * 1000 )
 
     return None
 
