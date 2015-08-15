@@ -26,14 +26,14 @@ class _Block:
             self.data = parent.__search_key( dbkey )[-1]
 
             if 'heading' in self.data:
-                self.title = self.data['heading'].encode('utf-8')
+                self.title = self.data['heading']
 
-            if 'frontends' in self.data:
-                self.title = self.data['frontends']['heading'].encode('utf-8')
+            elif 'frontends' in self.data:
+                self.title = self.data['frontends']['heading']
 
 
     def __str__( self ):
-        return self.id  + ',' +  self.type +  ','  + self.title  + ',' + ','.join( map( str , self.activity() ) )
+        return self.id  + '|' +  self.type +  '|'  + unicode( self.title ).encode('ascii', 'ignore') + '|' + '|'.join( map( str , self.activity() ) )
 
     def activity(self):
 
@@ -81,13 +81,10 @@ class Block:
             if line['key'] == key:
                 ret.append( line['val'] )
 
-            if 'ratings:' in line['key']:
-                print line['val']
-
         return ret
 
 
-    STORE = "BlockStore:refs"
+    STORE = "blocks:refs" ## "BlockStore:refs"
 
     def __init__(self, file_name ):
 
@@ -97,13 +94,15 @@ class Block:
 
         ## manually make sure that we have only one of each
         self.blocks = {}
+        self.blocks2 = {}
 
         for b in blocks[-1]:
             if b['id'] not in self.blocks:
                 self.blocks[ b['id'] ] = b
-                _Block( b['id'], b['type'], self )
+                self.blocks2[ b['id'] ] = _Block( b['id'], b['type'], self )
 
         self.blocks = self.blocks.values()
+        self.blocks2 = self.blocks2.values()
 
         self.content = {}
 
@@ -112,6 +111,10 @@ class Block:
 
             if block['type'] == 'chat':
                 key = 'chat:' + block['id'] + 'msgIds'
+                self.content[ block['id'] ] = set( self.__search_key( key )[-1] )
+
+            if block['type'] == 'thread':
+                key = 'thread:' + block['id'] + 'msgIds'
                 self.content[ block['id'] ] = set( self.__search_key( key )[-1] )
 
             if block['type'] == 'rating':
@@ -127,7 +130,9 @@ class Block:
         data = []
 
         for block in self.blocks:
+
             if block['type'] == type_name:
+
 
                 ## TODO: move ocntent selection to block as a method
                 b = _Block( block['id'], block['type'], self )
@@ -145,5 +150,7 @@ class Block:
 
 if __name__ == '__main__':
     b = Block( sys.argv[1] )
-    ## b.get_blocks( 'chat' , Message )
-    ## b.get_blocks( 'scatter', Message )
+
+    for block in b.blocks2:
+
+        print block
