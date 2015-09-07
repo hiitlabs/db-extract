@@ -83,15 +83,18 @@ class Block:
 
         return ret
 
-
-    ## STORE = "blocks:refs" ## "BlockStore:refs"
     STORE = "BlockStore:refs"
 
     def __init__(self, file_name ):
 
         self.f = file_name
 
+        ## check which term to use for blockstore
         blocks = self.__search_key( self.STORE )
+
+        if len( blocks ) == 0:
+            self.STORE = "blocks:refs"
+            blocks = self.__search_key( self.STORE )
 
         ## manually make sure that we have only one of each
         self.blocks = {}
