@@ -3,33 +3,54 @@ import json
 
 from chat import Message
 
-class _Block:
+class Block:
 
-    def __init__( self, _id, _type, parent ):
+    def __init__( self, _id, _type, file ):
         self.type = _type
         self.id = _id
 
-        self.__parent = parent
+        self.file = file
 
         self.title = 'missing'
 
         self.data = None
+        self.content = None
 
-        ## collect extra data
+        ## collect descriptive data
+
+        ## block name
         dbkey = self.type + ':' + self.id
 
         if self.type == 'chat' or self.type == 'rating' or self.type == 'thread':
             dbkey += 'frontends'
 
-        if len( parent.__search_key( dbkey ) ) > 0:
+        if len( Presemo.search_key( self.file , dbkey ) ) > 0:
 
-            self.data = parent.__search_key( dbkey )[-1]
+            self.data = Presemo.search_key( self.file , dbkey )[-1]
 
             if 'heading' in self.data:
                 self.title = unicode( self.data['heading'] )
 
             elif 'frontends' in self.data:
                 self.title = unicode( self.data['frontends']['heading'] )
+
+        ## block content
+
+        if self.type == 'chat':
+            key = 'chat:' + self.id + 'msgIds'
+            self.content = set( Presemo.search_key( self.file , key )[-1] )
+
+        if self.type == 'thread':
+            key = 'thread:' + self.id + 'msgIds'
+            self.content = set( Presemo.search_key( self.file , key )[-1] )
+
+        if self.type == 'rating':
+            key = 'rating:' + self.id + 'msgIds'
+            self.content = set( Presemo.search_key( self.file , key )[-1] )
+
+        if self.type == 'poll':
+            key = 'poll:' + self.id
+            self.content = Presemo.search_key( self.file , key )
 
 
     def __str__( self ):
@@ -43,39 +64,38 @@ class _Block:
 
         dbkey = self.type + ':' + self.id
 
-        if self.__parent.__search_key( dbkey + 'participantCount' ):
+        if Presemo.search_key( self.file , dbkey + 'participantCount' ):
 
-            participants = max( self.__parent.__search_key( dbkey + 'participantCount' ) )
+            participants = max( Presemo.search_key( self.file , dbkey + 'participantCount' ) )
 
         if self.type == 'chat' or self.type == 'rating' or self.type == 'thread':
 
-            messages = self.__parent.__search_key( dbkey + 'msgIds' )[-1]
+            messages = Presemo.search_key( self.file , dbkey + 'msgIds' )[-1]
             messages = len( messages )
 
         if self.type == 'rating':
 
-            temp = self.__parent.__search_key( dbkey )[-1]
+            temp = Presemo.search_key( self.file , dbkey )[-1]
 
             if temp:
                 votes = sum( votes['votes'].values() )
 
         if self.type == 'poll':
 
-            votes = self.__parent.__search_key( dbkey  )[-1]
+            votes = Presemo.search_key( self.file, dbkey  )[-1]
             votes = len( votes['participants'] )
 
         return participants, messages, votes
 
 
+class Presemo:
 
-
-class Block:
-
-    def __search_key( self, key ):
+    @staticmethod
+    def search_key( file, key ):
 
         ret = []
 
-        for line in open( self.f ):
+        for line in open( file ):
             line = json.loads( line )
 
             if line['key'] == key:
@@ -87,47 +107,25 @@ class Block:
 
     def __init__(self, file_name ):
 
-        self.f = file_name
+        self.file = file_name
+
+        blocks = Presemo.search_key( self.file, self.STORE )
 
         ## check which term to use for blockstore
-        blocks = self.__search_key( self.STORE )
-
         if len( blocks ) == 0:
             self.STORE = "blocks:refs"
-            blocks = self.__search_key( self.STORE )
+            blocks = Presemo.search_key( self.file, self.STORE )
 
         ## manually make sure that we have only one of each
+        self.raw_blocks = {}
         self.blocks = {}
-        self.blocks2 = {}
 
         for b in blocks[-1]:
             if b['id'] not in self.blocks:
-                self.blocks[ b['id'] ] = b
-                self.blocks2[ b['id'] ] = _Block( b['id'], b['type'], self )
+                self.raw_blocks[ b['id'] ] = b
+                self.blocks[ b['id'] ] = Block( b['id'], b['type'], self.file )
 
         self.blocks = self.blocks.values()
-        self.blocks2 = self.blocks2.values()
-
-        self.content = {}
-
-        ## check hot to make this smarter
-        for block in self.blocks:
-
-            if block['type'] == 'chat':
-                key = 'chat:' + block['id'] + 'msgIds'
-                self.content[ block['id'] ] = set( self.__search_key( key )[-1] )
-
-            if block['type'] == 'thread':
-                key = 'thread:' + block['id'] + 'msgIds'
-                self.content[ block['id'] ] = set( self.__search_key( key )[-1] )
-
-            if block['type'] == 'rating':
-                key = 'rating:' + block['id'] + 'msgIds'
-                self.content[ block['id'] ] = set( self.__search_key( key )[-1] )
-
-            if block['type'] == 'poll':
-                key = 'poll:' + block['id']
-                self.content[ block['id'] ] = self.__search_key( key )
 
     def get_blocks( self, type_name, class_name ):
 
@@ -137,8 +135,6 @@ class Block:
 
             if block['type'] == type_name:
 
-
-                ## TODO: move ocntent selection to block as a method
                 b = _Block( block['id'], block['type'], self )
 
                 ## all content of this block
@@ -153,8 +149,8 @@ class Block:
 
 
 if __name__ == '__main__':
-    b = Block( sys.argv[1] )
+    b = Presemo( sys.argv[1] )
 
-    for block in b.blocks2:
+    for block in b.blocks:
 
-        print block
+        print block.content
