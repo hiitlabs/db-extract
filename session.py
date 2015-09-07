@@ -26,10 +26,10 @@ class _Block:
             self.data = parent.__search_key( dbkey )[-1]
 
             if 'heading' in self.data:
-                self.title = self.data['heading']
+                self.title = unicode( self.data['heading'] )
 
             elif 'frontends' in self.data:
-                self.title = self.data['frontends']['heading']
+                self.title = unicode( self.data['frontends']['heading'] )
 
 
     def __str__( self ):
@@ -84,7 +84,8 @@ class Block:
         return ret
 
 
-    STORE = "blocks:refs" ## "BlockStore:refs"
+    ## STORE = "blocks:refs" ## "BlockStore:refs"
+    STORE = "BlockStore:refs"
 
     def __init__(self, file_name ):
 
@@ -143,7 +144,7 @@ class Block:
                 else:
                     content = class_name.load_per_block( self.f, self.content[ block['id'] ]  )
 
-                data.append( {  'id' : block['id'],  'content': content } )
+                data.append( {  'id' : block['id'], 'title' : b.title, 'content': content } )
 
         return data
 
