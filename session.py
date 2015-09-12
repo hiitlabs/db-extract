@@ -70,15 +70,14 @@ class Block:
 
         if self.type == 'chat' or self.type == 'rating' or self.type == 'thread':
 
-            messages = Presemo.search_key( self.file , dbkey + 'msgIds' )[-1]
-            messages = len( messages )
+            messages = len( self.content )
 
         if self.type == 'rating':
 
-            temp = Presemo.search_key( self.file , dbkey )[-1]
+            temp = Presemo.search_key( self.file , dbkey + 'results' )[-1]
 
             if temp:
-                votes = sum( votes['votes'].values() )
+                votes = sum( map( lambda x: x['points'] , temp ) )
 
         if self.type == 'poll':
 
@@ -153,4 +152,4 @@ if __name__ == '__main__':
 
     for block in b.blocks:
 
-        print block.content
+        print block.title.encode('utf8')
