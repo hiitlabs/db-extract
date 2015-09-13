@@ -99,8 +99,17 @@ class Block:
 
         if self.type == 'rating':
             Message.HEADER = 'rating:(.*)'
-            msg = Message.load_per_block( self.file , self._content  )
-            return msg
+            _msg = Message.load_per_block( self.file , self._content  )
+
+            ## return only unique ratings
+            msg = {}
+
+            for m in _msg:
+
+                if m not in msg:
+                    msg[ m.id ] = m
+
+            return msg.values()
 
         if self.type == 'poll':
             polls = Poll.load_per_block( self.file , [ self.id ] )
@@ -148,6 +157,24 @@ class Presemo:
                 self.blocks[ b['id'] ] = Block( b['id'], b['type'], self.file )
 
         self.blocks = self.blocks.values()
+
+    def get_blocks( self, type_name, class_name ):
+
+        data = []
+
+        for block in self.blocks:
+
+            if block.type == type_name:
+
+                ## all content of this block
+                if block.type == 'poll':
+                    content =  class_name.load_per_block( self.f, [ block['id'] ]  )
+                else:
+                    content = class_name.load_per_block( self.f, self.content[ block['id'] ]  )
+
+                data.append( {  'id' : block.id, 'title' : block.title, 'content': content } )
+
+        return data
 
 
 if __name__ == '__main__':
