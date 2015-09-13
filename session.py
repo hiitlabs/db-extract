@@ -2,6 +2,7 @@ import sys
 import json
 
 from chat import Message
+from poll import Poll
 
 class Block:
 
@@ -14,7 +15,7 @@ class Block:
         self.title = 'missing'
 
         self.data = None
-        self.content = None
+        self._content = None
 
         ## collect descriptive data
 
@@ -34,23 +35,22 @@ class Block:
             elif 'frontends' in self.data:
                 self.title = unicode( self.data['frontends']['heading'] )
 
-        ## block content
-
+        ## block raw content
         if self.type == 'chat':
             key = 'chat:' + self.id + 'msgIds'
-            self.content = set( Presemo.search_key( self.file , key )[-1] )
+            self._content = set( Presemo.search_key( self.file , key )[-1] )
 
         if self.type == 'thread':
             key = 'thread:' + self.id + 'msgIds'
-            self.content = set( Presemo.search_key( self.file , key )[-1] )
+            self._content = set( Presemo.search_key( self.file , key )[-1] )
 
         if self.type == 'rating':
             key = 'rating:' + self.id + 'msgIds'
-            self.content = set( Presemo.search_key( self.file , key )[-1] )
+            self._content = set( Presemo.search_key( self.file , key )[-1] )
 
         if self.type == 'poll':
             key = 'poll:' + self.id
-            self.content = Presemo.search_key( self.file , key )
+            self._content = Presemo.search_key( self.file , key )
 
 
     def __str__( self ):
@@ -70,7 +70,7 @@ class Block:
 
         if self.type == 'chat' or self.type == 'rating' or self.type == 'thread':
 
-            messages = len( self.content )
+            messages = len( self._content )
 
         if self.type == 'rating':
 
@@ -85,6 +85,29 @@ class Block:
             votes = len( votes['participants'] )
 
         return participants, messages, votes
+
+
+    def content( self ):
+
+        ## real content loading
+
+        if self.type == 'chat':
+            ## Message.HEADER = 'chat-message:(.*)'
+            HEADER = 'chat:(.*)meta'
+            msg = Message.load_per_block( self.file , self._content  )
+            return msg
+
+        if self.type == 'rating':
+            Message.HEADER = 'rating:(.*)'
+            msg = Message.load_per_block( self.file , self._content  )
+            return msg
+
+        if self.type == 'poll':
+            polls = Poll.load_per_block( self.file , [ self.id ] )
+            return polls
+
+        print self.type
+        return []
 
 
 class Presemo:
@@ -125,26 +148,6 @@ class Presemo:
                 self.blocks[ b['id'] ] = Block( b['id'], b['type'], self.file )
 
         self.blocks = self.blocks.values()
-
-    def get_blocks( self, type_name, class_name ):
-
-        data = []
-
-        for block in self.blocks:
-
-            if block['type'] == type_name:
-
-                b = _Block( block['id'], block['type'], self )
-
-                ## all content of this block
-                if block['type'] == 'poll':
-                    content =  class_name.load_per_block( self.f, [ block['id'] ]  )
-                else:
-                    content = class_name.load_per_block( self.f, self.content[ block['id'] ]  )
-
-                data.append( {  'id' : block['id'], 'title' : b.title, 'content': content } )
-
-        return data
 
 
 if __name__ == '__main__':
