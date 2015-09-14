@@ -93,7 +93,7 @@ class Block:
 
         if self.type == 'chat':
             ## Message.HEADER = 'chat-message:(.*)'
-            HEADER = 'chat:(.*)meta'
+            Message.HEADER = 'chat:(.*)meta'
             msg = Message.load_per_block( self.file , self._content  )
             return msg
 
@@ -115,7 +115,6 @@ class Block:
             polls = Poll.load_per_block( self.file , [ self.id ] )
             return polls
 
-        print self.type
         return []
 
 
