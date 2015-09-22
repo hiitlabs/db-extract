@@ -40,7 +40,7 @@ def xxx_init_time_estimate( file_name ):
 
     for t in temp:
 
-        if 'userId' in t['val']:
+        if 'val' in t and 'userId' in t['val']:
             if t['val']['userId'] not in xxx_session:
                 xxx_session[ t['val']['userId'] ] = t
 
