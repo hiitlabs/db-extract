@@ -91,6 +91,12 @@ class Block:
 
         ## real content loading
 
+        if self.type == 'thread':
+                ## Message.HEADER = 'chat-message:(.*)'
+                Message.HEADER = 'thread-message:(.*)'
+                msg = Message.load_per_block( self.file , self._content  )
+                return msg
+
         if self.type == 'chat':
             ## Message.HEADER = 'chat-message:(.*)'
             Message.HEADER = 'chat:(.*)meta'
@@ -181,4 +187,4 @@ if __name__ == '__main__':
 
     for block in b.blocks:
 
-        print block.title.encode('utf8')
+        print block.id , '|' , block.title.encode('utf8'), '|', block.activity(), '|', block.type
