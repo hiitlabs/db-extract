@@ -77,6 +77,7 @@ class Block:
             temp = Presemo.search_key( self.file , dbkey + 'results' )[-1]
 
             if temp:
+                temp  = filter( lambda x: 'points' in x, temp ) ## some items might be broken and do not have points
                 votes = sum( map( lambda x: x['points'] , temp ) )
 
         if self.type == 'poll':
