@@ -172,6 +172,7 @@ class Presemo:
 
         self.blocks = self.blocks.values()
 
+    ### deprecated!
     def get_blocks( self, type_name, class_name ):
 
         data = []
