@@ -99,14 +99,22 @@ class Block:
                 return msg
 
         if self.type == 'chat':
-            ## Message.HEADER = 'chat-message:(.*)'
             Message.HEADER = 'chat:(.*)meta'
             msg = Message.load_per_block( self.file , self._content  )
+
+            ## different Presemo versions use differend headers, lets collect them all
+            Message.HEADER = 'chat-message:(.*)'
+            msg += Message.load_per_block( self.file , self._content  )
+
             return msg
 
         if self.type == 'rating':
             Message.HEADER = 'rating:(.*)'
             _msg = Message.load_per_block( self.file , self._content  )
+
+            ## some Presemo versions used this heading
+            Message.HEADER = 'rating-message:(.*)'
+            _msg += Message.load_per_block( self.file , self._content  )
 
             ## return only unique ratings
             msg = {}
