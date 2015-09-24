@@ -121,7 +121,10 @@ class Poll:
 
         self.time = xxx_estimate_time( self ) ## None ## msg['tc']
 
-        self.text = info['frontends']['heading']
+        if 'heading' in info:
+            self.text = info['heading']
+        else:
+            self.text = info['frontends']['heading']
 
         self.participants = info['participantCount']
 
